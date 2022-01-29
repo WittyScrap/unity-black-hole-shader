@@ -134,7 +134,7 @@ Shader "Unlit/BlackHole"
                 float3 ray = normalize(samplePoint - _WorldSpaceCameraPos);
                 float3 toCenter = normalize(samplePoint - _BlackHolePosition);
                 float3 swirl = normalize(cross(localUp, toCenter)) * -sign(_AccretionDiskSpeed);
-                float doppler = max(((dot(ray, swirl) + 1) / 2), .25f) * 2 * _AccretionDiskSpeed;
+                float doppler = max(((dot(ray, swirl) + 1) / 2), .25f) * 2 * abs(_AccretionDiskSpeed);
                 doppler = saturate(doppler + !_AccretionDiskDoppler); // Turns off doppler effect if requested
 
                 return float4(_AccretionDiskColor.xyz * density * (_AccretionDiskPower * doppler), thickness);
