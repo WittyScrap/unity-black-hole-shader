@@ -213,7 +213,7 @@ Shader "Unlit/BlackHole"
                     float gravityForce = G / (distanceToBlackHole * distanceToBlackHole) * _Gravity;
                     float3 gravity = blackHoleDirection * gravityForce * stepSize;
 
-                    rayDir = normalize(rayDir + gravity);
+                    rayDir = normalize(rayDir + gravity); // TEST
                 }
 
                 float3 skybox = texCUBElod(_Skybox, float4(rayDir, 0));
