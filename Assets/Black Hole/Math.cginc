@@ -72,7 +72,7 @@ float2 raySphere(float3 sphereCentre, float sphereRadius, float3 rayOrigin, floa
 
 // Checks for a ray-disc intersection
 // If no intersection then t = maxFloat.
-float intersectDisc(float3 discPos, float3 discDir, float discRadius, float innerRadius, float3 rayOrigin, float3 rayDir)
+float intersectDisc(float3 discPos, float3 discDir, float3 rayOrigin, float3 rayDir)
 {
 	float denom = dot(discDir, rayDir);
 

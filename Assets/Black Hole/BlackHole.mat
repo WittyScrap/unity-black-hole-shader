@@ -13,7 +13,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -65,6 +65,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AccretionDiskDetail: 100
+    - _AccretionDiskDoppler: 1
     - _AccretionDiskGap: 5
     - _AccretionDiskPower: 1
     - _AccretionDiskSize: 10
@@ -86,6 +87,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _RenderBlackHole: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

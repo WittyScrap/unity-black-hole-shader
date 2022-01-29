@@ -8,8 +8,6 @@ using UnityEngine.Experimental.Rendering;
 /// 
 /// Star which has collapsed into a singularity.
 /// </summary>
-#if UNITY_EDITOR
-#endif
 public class BlackHole : MonoBehaviour
 {
 	[Header("Properties")]
@@ -21,14 +19,12 @@ public class BlackHole : MonoBehaviour
     [SerializeField] private float _AccretionDiskDetail = 100.0f;
 	[SerializeField] private float _AccretionDiskSize = 5f;
 	[SerializeField] private float _AccretionDiskGap = 2f;
-	[SerializeField] private float _AccretionDiskThickness = .05f;
 	[SerializeField] private Color _AccretionDiskColor = Color.red;
 	[SerializeField, Range(0, 2)] private float _AccretionDiskPower = 1;
 	[SerializeField] private float _Gravity = 1e10f;
 	[SerializeField] private float _MaxRotation = 10;
 
 	[Header("Performance")]
-    [SerializeField] private int _AccretionDiskSteps = 12;
 	[SerializeField] private int _MarchingSteps = 20;
 	[SerializeField] private int _LensingResolution = 1024;
 
@@ -47,11 +43,6 @@ public class BlackHole : MonoBehaviour
 	/// The size of this black hole.
 	/// </summary>
 	public float Radius => (_EventHorizon + _AccretionDiskSize) * 10;
-
-	/// <summary>
-	/// Overrides the object's name.
-	/// </summary>
-	public string BodyName => "Black Hole";
 
 	// Creates a temporary camera gameobject.
 	//
@@ -88,10 +79,8 @@ public class BlackHole : MonoBehaviour
 		_BlackHoleMaterial.SetFloat("_AccretionDiskSpeed", _AccretionDiskSpeed);
 		_BlackHoleMaterial.SetFloat("_AccretionDiskSize", _AccretionDiskSize);
 		_BlackHoleMaterial.SetFloat("_AccretionDiskGap", _AccretionDiskGap);
-		_BlackHoleMaterial.SetFloat("_AccretionDiskThickness", _AccretionDiskThickness);
 		_BlackHoleMaterial.SetFloat("_AccretionDiskDetail", _AccretionDiskDetail);
 		_BlackHoleMaterial.SetFloat("_AccretionDiskPower", _AccretionDiskPower);
-		_BlackHoleMaterial.SetInt("_AccretionDiskSteps", _AccretionDiskSteps);
 		_BlackHoleMaterial.SetColor("_AccretionDiskColor", _AccretionDiskColor);
 		_BlackHoleMaterial.SetFloat("_Gravity", _Gravity);
 		_BlackHoleMaterial.SetFloat("_BlackHoleBounds", Radius);

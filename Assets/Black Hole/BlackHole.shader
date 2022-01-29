@@ -5,12 +5,11 @@ Shader "Unlit/BlackHole"
                     _MainTex ("Texture", 2D) = "white" {}
                     _EventHorizon("Event Horizon Radius", Float) = .5
         [Toggle]    _HasAccretionDisk("Has Accretion Disk", Int) = 1
+        [Toggle]    _AccretionDiskDoppler("Has Doppler Effect", Int) = 1
                     _AccretionDiskSpeed("Accretion Disk Speed", Float) = 1.0
                     _AccretionDiskDetail("Accretion Disk Detail", Float) = 100.0
                     _AccretionDiskSize("Accretion Disk Size", Float) = 10.0
                     _AccretionDiskGap("Accretion Disk Gap", Float) = 5.0
-                    _AccretionDiskThickness("Accretion Disk Thickness", Float) = .05
-                    _AccretionDiskSteps("Accretion Disk Steps", Int) = 12
                     _AccretionDiskColor("Accretion Disk Color", Color) = (1, 0, 0, 0)
                     _AccretionDiskPower("Accretion Disk Power", Range(0, 2)) = 1
                     _MarchingSteps("Marching Steps", Int) = 512
@@ -25,14 +24,11 @@ Shader "Unlit/BlackHole"
         Tags { "RenderType" = "Transparent" "Queue" = "Transparent" }
         Cull Front
 
-        GrabPass
-        {
-            "_Background"
-        }
-
         Pass
         {
             CGPROGRAM
+            #pragma enable_d3d11_debug_symbols
+
             #pragma vertex vert
             #pragma fragment frag
 
@@ -68,20 +64,18 @@ Shader "Unlit/BlackHole"
                 return o;
             }
 
-            sampler2D _Background;
             sampler2D _CameraDepthTexture;
             samplerCUBE _Skybox;
             
             int _HasAccretionDisk;
+            int _AccretionDiskDoppler;
             float _AccretionDiskSpeed;
             float _AccretionDiskSize;
             float _AccretionDiskGap;
             float _AccretionDiskDetail;
-            float _AccretionDiskThickness; 
             float4 _AccretionDiskColor;
             float _AccretionDiskPower;
 
-            int _AccretionDiskSteps;
             int _MarchingSteps;
             float _Gravity;
 
@@ -120,7 +114,9 @@ Shader "Unlit/BlackHole"
                 uv.y *= _AccretionDiskDetail;
                 uv.x += _Time.y * _AccretionDiskSpeed;
 
-                return _Noise.SampleLevel(sampler_Noise, uv * _Noise_ST, 0) * totalFade;
+                float noise = _Noise.SampleLevel(sampler_Noise, uv * _Noise_ST, 0) * totalFade;
+
+                return float2(noise, totalFade);
             }
 
             float4 accretion_disk(float3 samplePoint)
@@ -130,14 +126,17 @@ Shader "Unlit/BlackHole"
 
                 float dst = length(samplePoint - _BlackHolePosition);
                 float angle = signed_dot(samplePoint - _BlackHolePosition, localRight, localUp);
-                float density = sample_accretion_disk(dst, angle);
 
-                return float4(_AccretionDiskColor.xyz, density);
-            }
+                float2 sampled = sample_accretion_disk(dst, angle);
+                float  thickness = sampled.y;
+                float  density = sampled.x * thickness;
 
-            inline float3 If(in bool cond, in float3 t, in float3 f)
-            {
-                return (cond * t) + (!cond * f);
+                float3 ray = normalize(samplePoint - _WorldSpaceCameraPos);
+                float3 toCenter = normalize(samplePoint - _BlackHolePosition);
+                float3 swirl = normalize(cross(localUp, toCenter)) * -sign(_AccretionDiskSpeed);
+                float doppler = _AccretionDiskDoppler * max(((dot(ray, swirl) + 1) / 2), .25f) * 2 * _AccretionDiskSpeed;
+
+                return float4(_AccretionDiskColor.xyz * density * (_AccretionDiskPower * doppler), thickness);
             }
 
             fixed4 frag (v2f i) : SV_Target
@@ -166,14 +165,9 @@ Shader "Unlit/BlackHole"
                 {
                     /* -- Accretion Disk Simulation -- */
 
-                    // Aliases
-                    const float min = _AccretionDiskGap;
-                    const float max = _AccretionDiskSize;
-                    const float height = _AccretionDiskThickness;
-
                     // Has ray hit accretion disk?
                     float3 diskNormal = mul(unity_ObjectToWorld, float4(0, 1, 0, 0));
-                    float intersection = intersectDisc(_BlackHolePosition, diskNormal, max, min, rayOrigin, rayDir);
+                    float intersection = intersectDisc(_BlackHolePosition, diskNormal, rayOrigin, rayDir);
                     bool cond = _HasAccretionDisk & (intersection < stepSize);
 
                     if (cond)
@@ -188,8 +182,8 @@ Shader "Unlit/BlackHole"
                         float3 dstColor = accretionValue.rgb;
                         float  dstAlpha = accretionValue.a;
 
-                        sampled = saturate(srcColor * srcAlpha + dstColor * (1 - srcAlpha));
-                        transmittance = saturate(transmittance + dstAlpha);
+                        sampled = saturate(srcColor + dstColor);
+                        transmittance = saturate(transmittance + saturate(dstAlpha));
                     }
 
 
@@ -204,7 +198,7 @@ Shader "Unlit/BlackHole"
                     if (_RenderBlackHole & length(rayEnd - _BlackHolePosition) < stepSize)
                     {
                         sampled *= transmittance;
-                        transmittance = 1;
+                        transmittance = _RenderBlackHole + (transmittance * !_RenderBlackHole);
                         break;
                     }
 
@@ -220,8 +214,6 @@ Shader "Unlit/BlackHole"
 
                     rayDir = normalize(rayDir + gravity);
                 }
-
-                sampled *= _AccretionDiskPower;
 
                 float3 skybox = texCUBElod(_Skybox, float4(rayDir, 0));
                 float3 color = lerp(skybox, sampled * 2, transmittance);
