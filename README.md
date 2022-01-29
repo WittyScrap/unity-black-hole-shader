@@ -8,3 +8,17 @@ Performance may vary on each system, my current setup is:
 
 This can run one black hole shader at a time without any issues at any resolution at 200-250FPS.
 Again, mileage may vary depending on your system, but if your performance is much lower than you would expect feel free to open an issue about it or make a pull request.
+
+## Screenshots
+
+#### Standard Black Hole without an accretion disc
+![blackhole](Screenshots/BlackHoleNAD.png)
+
+#### Black Hole with orange accretion disc
+![orange](Screenshots/BlackHole.png)
+
+#### Black Hole with blue accretion disc
+![blue](Screenshots/BlackHoleBAD.png)
+
+#### Inside a black hole's Event Horizon
+![event horizon](Screenshots/BlackHoleIN.png)
