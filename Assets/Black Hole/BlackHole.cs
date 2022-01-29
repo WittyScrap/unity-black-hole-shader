@@ -20,6 +20,7 @@ public class BlackHole : MonoBehaviour
 	[SerializeField] private float _AccretionDiskSize = 5f;
 	[SerializeField] private float _AccretionDiskGap = 2f;
 	[SerializeField] private Color _AccretionDiskColor = Color.red;
+	[SerializeField] private bool _EnableDopplerEffect = true;
 	[SerializeField, Range(0, 2)] private float _AccretionDiskPower = 1;
 	[SerializeField] private float _Gravity = 1e10f;
 	[SerializeField] private float _MaxRotation = 10;
@@ -76,6 +77,7 @@ public class BlackHole : MonoBehaviour
 		_BlackHoleMaterial = new Material(_BlackHoleShader);
 		_BlackHoleMaterial.SetInt("_RenderBlackHole", _RenderBlackHole ? 1 : 0);
 		_BlackHoleMaterial.SetInt("_HasAccretionDisk", _HasAccretionDisk ? 1 : 0);
+		_BlackHoleMaterial.SetInt("_AccretionDiskDoppler", _EnableDopplerEffect ? 1 : 0);
 		_BlackHoleMaterial.SetFloat("_AccretionDiskSpeed", _AccretionDiskSpeed);
 		_BlackHoleMaterial.SetFloat("_AccretionDiskSize", _AccretionDiskSize);
 		_BlackHoleMaterial.SetFloat("_AccretionDiskGap", _AccretionDiskGap);
